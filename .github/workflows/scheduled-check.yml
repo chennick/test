@@ -1,6 +1,9 @@
 name: Scheduled Repository Check
 
 on:
+  push:
+    branches:
+      - main  # 你想要的分支名稱
   schedule:
     - cron: '*/3 * * * *'  # 每3分鐘執行一次
 
