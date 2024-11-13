@@ -5,7 +5,7 @@ on:
     branches:
       - main  # 每次推送到 main 分支時觸發工作流
   schedule:
-    - cron: '*/10 * * * *'  # 每10分鐘執行一次
+    - cron: '*/3 * * * *'  # 每10分鐘執行一次
   workflow_dispatch:  # 允許手動觸發工作流
 
 jobs:
