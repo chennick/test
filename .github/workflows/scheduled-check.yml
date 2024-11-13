@@ -1,0 +1,16 @@
+name: Scheduled Repository Check
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # 每10分鐘執行一次
+
+jobs:
+  check_repo_update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Target Repository for Updates
+        run: |
+          # 檢查指定倉庫是否有新提交
+          curl -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/nkxrfxforum/Test/commits | jq .
+          # 將更新信息存儲在 GitHub Secrets 或其他位置
