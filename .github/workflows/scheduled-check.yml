@@ -2,7 +2,7 @@ name: Scheduled Repository Check
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # 每10分鐘執行一次
+    - cron: '*/3 * * * *'  # 每3分鐘執行一次
 
 jobs:
   check_repo_update:
