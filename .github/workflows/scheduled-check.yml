@@ -1,11 +1,8 @@
 name: Scheduled Repository Check
 
 on:
-  push:
-    branches:
-      - main  # 你想要的分支名稱
   schedule:
-    - cron: '*/3 * * * *'  # 每3分鐘執行一次
+    - cron: '* * * * *'  # 每1分鐘執行一次
 
 jobs:
   check_repo_update:
@@ -16,17 +13,18 @@ jobs:
         run: |
           latest_commit=$(curl -s -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/repos/nkxrfxforum/Test/commits | jq -r '.[0].sha')
-          echo "::set-output name=latest_commit::$latest_commit"
+          echo "LATEST_COMMIT=$latest_commit" >> $GITHUB_ENV  # 將變數寫入 GITHUB_ENV
 
       - name: Compare Commits and Notify if New
+        env:
+          LATEST_COMMIT: ${{ env.LATEST_COMMIT }}  # 使用寫入的環境變數
         run: |
-          # 上一次的 commit SHA 存儲在 GitHub 的 workflow 變量中
-          if [ "$latest_commit" != "$GITHUB_ENV" ]; then
-            echo "New commit detected: $latest_commit"
-            # 更新 GITHUB_ENV 中的記錄以保存最新狀態
-            echo "latest_commit=$latest_commit" >> $GITHUB_ENV
-            # 執行後續通知操作，例如發送到你的應用
-            curl -X POST http://localhost:5000/notify -H "Content-Type: application/json" -d '{"message": "New update in nkxrfxforum/Test!"}'
+          # 假設上次的提交 SHA 也已保存或從外部源獲取
+          if [ "$LATEST_COMMIT" != "$PREVIOUS_COMMIT" ]; then
+            echo "New commit detected: $LATEST_COMMIT"
+            echo "PREVIOUS_COMMIT=$LATEST_COMMIT" >> $GITHUB_ENV  # 更新 GITHUB_ENV
+            # 暫時註解掉發送通知的命令
+            # curl -X POST http://localhost:5000/notify -H "Content-Type: application/json" -d '{"message": "New update in nkxrfxforum/Test!"}'
           else
             echo "No new commits."
           fi
