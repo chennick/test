@@ -8,9 +8,22 @@ jobs:
   check_repo_update:
     runs-on: ubuntu-latest
     steps:
-      - name: Check Target Repository for Updates
+      - name: Fetch Latest Commit SHA from Target Repository
+        id: fetch_commit
         run: |
-          # 檢查指定倉庫是否有新提交
-          curl -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/nkxrfxforum/Test/commits | jq .
-          # 將更新信息存儲在 GitHub Secrets 或其他位置
+          latest_commit=$(curl -s -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/nkxrfxforum/Test/commits | jq -r '.[0].sha')
+          echo "::set-output name=latest_commit::$latest_commit"
+
+      - name: Compare Commits and Notify if New
+        run: |
+          # 上一次的 commit SHA 存儲在 GitHub 的 workflow 變量中
+          if [ "$latest_commit" != "$GITHUB_ENV" ]; then
+            echo "New commit detected: $latest_commit"
+            # 更新 GITHUB_ENV 中的記錄以保存最新狀態
+            echo "latest_commit=$latest_commit" >> $GITHUB_ENV
+            # 執行後續通知操作，例如發送到你的應用
+            curl -X POST http://localhost:5000/notify -H "Content-Type: application/json" -d '{"message": "New update in nkxrfxforum/Test!"}'
+          else
+            echo "No new commits."
+          fi
